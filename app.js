@@ -1,13 +1,24 @@
+require('dotenv').config();
 const express = require('express')
-const usersRoutes = require('./routes/user')
+const mongoose = require('mongoose'); 
+const { ErrorHandler, isAdmin } = require('./middlewares/auth');
+const usersRoutes = require('./routes/authRoutes')
 const app = express()
 
+app.use(express.json());
+app.use('/auth', usersRoutes)
+app.use(ErrorHandler)
 
-app.use('/users', usersRoutes)
+const dbURI = process.env.MONGO_URI;
 
-mongoose.connection.once('open', () => {
-console.log('Connected to MongoDB')
-})
+mongoose.connect(dbURI)
+  .then(() => {
+    console.log("Connected to MongoDB successfully!");
+    app.listen(3000, () => {
+      console.log("Server is running on port 3000");
+    });
+  })
+  .catch((err) => {
+    console.log("Connection error:", err);
+  });
 
-app.listen(3000, () => console.log(`Server running on port
-${PORT}`))
