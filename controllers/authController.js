@@ -1,14 +1,16 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt=require('bcrypt')
 
 exports.register= async (req,res)=>{
     try {
         const {userName,pass,role}=req.body 
         if (!userName || !pass || !role)
             return res.status(400).send("הזנת שדות שגויה");
+        const hashedPassword = await bcrypt.hash(pass, 10);
         const newUser = new User({
             username: userName,
-            password: pass,
+            password: hashedPassword,
             role: role
         });
         const savedUser = await newUser.save();
@@ -29,8 +31,8 @@ exports.login =  async (req, res) => {
     if (!userName || !pass)
         return res.status(400).json({ err: "fields req" });
 
-    const user  = await User.findOne({ username: userName, password: pass })
-    if (!user )
+    const user  = await User.findOne({ username: userName })
+    if (!user || !(await bcrypt.compare(pass, user.password)))
     {
         return res.status(401).json({ err: "user not found" })
     }

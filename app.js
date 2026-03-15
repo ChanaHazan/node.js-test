@@ -1,12 +1,20 @@
 require('dotenv').config();
 const express = require('express')
 const mongoose = require('mongoose'); 
-const { ErrorHandler, isAdmin } = require('./middlewares/auth');
+const { ErrorHandler} = require('./middlewares/auth');
+
 const usersRoutes = require('./routes/authRoutes')
+const productRoutes =require('./routes/productRoutes')
+const categoryRoutes=require('./routes/categoryRoutes')
+
 const app = express()
 
 app.use(express.json());
+
 app.use('/auth', usersRoutes)
+app.use('/products', productRoutes); 
+app.use('/categories', categoryRoutes);
+
 app.use(ErrorHandler)
 
 const dbURI = process.env.MONGO_URI;
